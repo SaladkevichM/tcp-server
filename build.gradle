@@ -6,6 +6,8 @@
  * user guide available at https://docs.gradle.org/4.3/userguide/java_library_plugin.html
  */
 
+version = '0.9'
+
 // Apply the java-library plugin to add support for Java Library
 apply plugin: 'java-library'
 
@@ -16,13 +18,27 @@ repositories {
     jcenter()
 }
 
+// create a single Jar with all dependencies
+task fatJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'tcp-server',
+        			'Implementation-Version': version,
+        			'Main-Class': 'com.server.main.Server'
+    }
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     api 'org.apache.commons:commons-math3:3.6.1'
 
 	compile 'org.springframework:spring-context:3.2.13.RELEASE'
 	compile 'org.springframework:spring-context-support:3.2.13.RELEASE'
-
+	compile 'org.apache.httpcomponents:httpclient:4.5.4'
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.9.3'
+	
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:23.0'
 
