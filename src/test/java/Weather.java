@@ -7,12 +7,11 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import com.server.main.Server;
 import com.server.util.Util;
 import org.junit.Assert;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,9 +30,9 @@ public class Weather {
     String query = "London";
 
     @Before
-    public void setUp() {
+    public void setUp() throws UnsupportedEncodingException {
         request = new HttpGet(Util.getProperty("api_url") + "?appid=" + Util.getProperty("api_key")
-                + "&q=" + query);
+                + "&q=" + URLEncoder.encode(query, "UTF-8"));
     }
 
     @Test
@@ -49,6 +48,7 @@ public class Weather {
         String result =
                 new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()))
                         .lines().collect(Collectors.joining("\n"));
+        System.out.println(result);
         HashMap<String, Object> map = mapper.readValue(result, HashMap.class);
 
         Assert.assertEquals(true, map.containsKey("weather"));
